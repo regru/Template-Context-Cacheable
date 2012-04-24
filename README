@@ -1,0 +1,64 @@
+NAME
+    Template::Context::Cacheable - profiling/caching-aware version of
+    Template::Context
+
+SYNOPSIS
+    use My::Favourite::Cache::Engine;
+    use Template::Context::Cacheable;
+        Template::Context::Cacheable::configure_caching(
+            \&My::Favourite::Cache::Engine::get,
+            \&My::Favourite::Cache::Engine::put,
+        );
+
+DESCRIPTION
+    Enables profiling and caching of Template-Toolkit subtemplates, that can
+    improve template processing speed many times.
+
+  Using in templates
+    Inside any template you can use cached subtemplates. See example:
+
+     [% PROCESS subtemplate.tt
+        param_name_1 = 'value_1'
+        param_name_2 = 'value_2'
+        __cache_time = 60
+     %]
+
+    Here __cache_time parameter enables caching and sets caching time in
+    seconds. If __cache_time value is negative, subtemplated will be cached
+    forever (actually it will be cached for 12 hours ;)
+
+    param_name_X is examples of parameters, which combination will be used
+    as a hash key.
+
+FUNCTIONS / METHODS
+    The following functions / methods are available:
+
+  configure_caching ( cache_get_ref, cache_put_ref )
+    Install cache get / put handlers.
+
+    Here are protypes for get / put handlers which illustrates parameters
+    which they will receive:
+
+    sub get { my ($key) = @_;
+
+        ...
+    }
+
+    sub set { my ($code, $key, $keep_in_seconds) = @_;
+
+        ...
+    }
+
+  process ( self )
+    Overloaded Template::Context::process method
+
+EXPORT
+    No functions is exported.
+
+AUTHOR
+    Walery Studennikov, "<despair at cpan.org>"
+
+COPYRIGHT & LICENSE
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
