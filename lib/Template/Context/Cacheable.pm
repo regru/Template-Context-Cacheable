@@ -16,8 +16,8 @@ our $VERSION = '0.03';
     use Template::Context::Cacheable;
 
     Template::Context::Cacheable::configure_caching(
-	\&My::Favourite::Cache::Engine::get,
-	\&My::Favourite::Cache::Engine::put,
+        \&My::Favourite::Cache::Engine::get,
+        \&My::Favourite::Cache::Engine::put,
     );
 
 =head1 DESCRIPTION
@@ -103,16 +103,16 @@ sub process {
     my @result;
 
     if ($DEBUG) {
-	push @stack, [ time, times ];
-	print STDERR Dumper( @_ ) if $DEBUG >= 2;
+        push @stack, [ time, times ];
+        print STDERR Dumper( @_ ) if $DEBUG >= 2;
     }
 
     unless ($CACHE_GET && $CACHE_PUT) {
-	@result = wantarray ?
-	    $self->SUPER::process(@_) :
-	    scalar $self->SUPER::process(@_);
+        @result = wantarray ?
+            $self->SUPER::process(@_) :
+            scalar $self->SUPER::process(@_);
 
-	goto SKIP_CACHING;
+        goto SKIP_CACHING;
     }
 
     # subtemplates caching
@@ -123,80 +123,80 @@ sub process {
     my $param_ref = $_[1];
 
     if (exists $param_ref->{__cache_time} && !$param_ref->{__cache_time}) {
-	delete $param_ref->{__cache_time};
+        delete $param_ref->{__cache_time};
     }
     if ($param_ref && ref $param_ref eq 'HASH' && $param_ref->{__cache_time}) {
-	$cache_time = delete $param_ref->{__cache_time};
-	$cache_time = $cache_time < 0  ? 3600 * 12 : $cache_time;
+        $cache_time = delete $param_ref->{__cache_time};
+        $cache_time = $cache_time < 0  ? 3600 * 12 : $cache_time;
 
-	$cache_key =  join '_', map { ($_, $param_ref->{$_}) } sort keys %$param_ref;
+        $cache_key =  join '_', map { ($_, $param_ref->{$_}) } sort keys %$param_ref;
 
-	print STDERR "RAW KEY: $cache_key\n" if $DEBUG >= 2;
+        print STDERR "RAW KEY: $cache_key\n" if $DEBUG >= 2;
 
-	$cache_key = $template . '__' . Digest::MD5::md5_hex( $cache_key );
+        $cache_key = $template . '__' . Digest::MD5::md5_hex( $cache_key );
 
-	# ”далим ненужные дл€ обработки шаблона ключи
-	# (которые €вл€ютс€ исключительно ключами кэшировани€)
-	foreach my $key (keys %{$param_ref}) {
-	    delete $param_ref->{$key} if $key =~ /^__nocache_/;
-	}
+        # ”далим ненужные дл€ обработки шаблона ключи
+        # (которые €вл€ютс€ исключительно ключами кэшировани€)
+        foreach my $key (keys %{$param_ref}) {
+            delete $param_ref->{$key} if $key =~ /^__nocache_/;
+        }
     }
     print STDERR "HASHED KEY: $cache_key\n" if $DEBUG >= 2 && $cache_key;
 
     my $cached_data;
     if ($cache_key && ($cached_data = $CACHE_GET->($cache_key))) {
-	print STDERR "$template: CACHED ($cache_key)\n" if $DEBUG >= 2;
-	@result = @{ $cached_data };
+        print STDERR "$template: CACHED ($cache_key)\n" if $DEBUG >= 2;
+        @result = @{ $cached_data };
     }
     else {
-	print STDERR "$template: NON_CACHED ($cache_key)\n" if $DEBUG >= 2;
-	@result = wantarray ?
-	    $self->SUPER::process(@_) :
-	    scalar $self->SUPER::process(@_);
-	$CACHE_PUT->( $cache_key, \@result, $cache_time ) if $cache_key;
+        print STDERR "$template: NON_CACHED ($cache_key)\n" if $DEBUG >= 2;
+        @result = wantarray ?
+            $self->SUPER::process(@_) :
+            scalar $self->SUPER::process(@_);
+        $CACHE_PUT->( $cache_key, \@result, $cache_time ) if $cache_key;
     }
 
     # / subtemplates caching
 SKIP_CACHING:
 
     if ($DEBUG) {
-	my @delta_times = @{pop @stack};
-	@delta_times = map { $_ - shift @delta_times } time, times;
-	for (0..$#delta_times) {
-	    $totals{$template}[$_] += $delta_times[$_];
-	    for my $parent (@stack) {
-		$parent->[$_] += $delta_times[$_] if @stack; # parent adjust
-	    }
-	}
-	$totals{$template}[5] ++; # count of calls
-	$totals{$template}[6] = $cached_data ? 1 : 0;
+        my @delta_times = @{pop @stack};
+        @delta_times = map { $_ - shift @delta_times } time, times;
+        for (0..$#delta_times) {
+            $totals{$template}[$_] += $delta_times[$_];
+            for my $parent (@stack) {
+                $parent->[$_] += $delta_times[$_] if @stack; # parent adjust
+            }
+        }
+        $totals{$template}[5] ++; # count of calls
+        $totals{$template}[6] = $cached_data ? 1 : 0;
 
-	unless (@stack) {
-	    ## top level again, time to display results
-	    print STDERR "-- $template at ". localtime, ":\n";
-	    printf STDERR "%4s %6s %6s %6s %6s %6s %s\n",
-		qw(cnt clk user sys cuser csys template);
+        unless (@stack) {
+            ## top level again, time to display results
+            print STDERR "-- $template at ". localtime, ":\n";
+            printf STDERR "%4s %6s %6s %6s %6s %6s %s\n",
+                qw(cnt clk user sys cuser csys template);
 
-	    my @totals = (0) x 6;
+            my @totals = (0) x 6;
 
-	    for my $template (sort keys %totals) {
-		my @values = @{$totals{$template}};
-		printf STDERR "%4d %6.4f %6.4f %6.4f %6.4f %6.4f %s\n",
-		    $values[5],
-		    @values[0..4],
-		    $template .($values[6] ? '  CACHED' : '');
+            for my $template (sort keys %totals) {
+                my @values = @{$totals{$template}};
+                printf STDERR "%4d %6.4f %6.4f %6.4f %6.4f %6.4f %s\n",
+                    $values[5],
+                    @values[0..4],
+                    $template .($values[6] ? '  CACHED' : '');
 
-		for my $i (0..5) { $totals[$i] += $values[$i] };
-	    }
+                for my $i (0..5) { $totals[$i] += $values[$i] };
+            }
 
-	    printf STDERR "%4d %6.4f %6.4f %6.4f %6.4f %6.4f %s\n",
-		$totals[5],
-		@totals[0..4],
-		'TOTAL';
+            printf STDERR "%4d %6.4f %6.4f %6.4f %6.4f %6.4f %s\n",
+                $totals[5],
+                @totals[0..4],
+                'TOTAL';
 
-	    print STDERR "-- end\n";
-	    %totals = (); # clear out results
-	}
+            print STDERR "-- end\n";
+            %totals = (); # clear out results
+        }
     }
 
     # return value from process:
