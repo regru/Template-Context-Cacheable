@@ -12,6 +12,7 @@ Template::Context::Cacheable - profiling/caching-aware version of Template::Cont
 our $VERSION = '0.03';
 
 =head1 SYNOPSIS
+
     use My::Favourite::Cache::Engine;
     use Template::Context::Cacheable;
 
@@ -49,14 +50,12 @@ use Time::HiRes qw/time/;
 
 use Data::Dumper;
 
-use lib '/www/srs/lib';
-
 our $DEBUG = 0;
 our $CACHE_GET; # GET subroutine reference
 our $CACHE_PUT; # PUT subroutine reference
 
-my @stack;
-my %totals;
+my @stack = ();
+my %totals = ();
 
 =head1 FUNCTIONS / METHODS
 
@@ -68,17 +67,17 @@ Install cache get / put handlers.
 
 Here are protypes for get / put handlers which illustrates parameters which they will receive:
 
-sub get {
-    my ($key) = @_;
+    sub get {
+        my ($key) = @_;
 
-    ...
-}
+        ...
+    }
 
-sub set {
-    my ($code, $key, $keep_in_seconds) = @_;
+    sub set {
+        my ($code, $key, $keep_in_seconds) = @_;
 
-    ...
-}
+        ...
+    }
 
 =cut
 
@@ -209,7 +208,7 @@ $Template::Config::CONTEXT = __PACKAGE__;
 
 No functions is exported.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Walery Studennikov, C<< <despair at cpan.org> >>
 
