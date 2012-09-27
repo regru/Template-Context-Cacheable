@@ -9,3 +9,6 @@ Revision history for Template-Context-Cacheable
 
 0.03	29-Apr-2011	Walery Studennikov
 	Included "TOTAL" section into profiling report in DEBUG mode
+
+0.04    20-Sep-2012	Akzhan Abdulin
+	Remove unused INC path + minor style changes

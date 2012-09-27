@@ -9,7 +9,7 @@ Template::Context::Cacheable - profiling/caching-aware version of Template::Cont
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 SYNOPSIS
 
