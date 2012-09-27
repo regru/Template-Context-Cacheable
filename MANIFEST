@@ -1,7 +1,7 @@
 Build.PL
 Changes
 MANIFEST
-README-ru
+README_ru.md
 lib/Template/Context/Cacheable.pm
 t/00-load.t
 t/pod-coverage.t
